@@ -149,13 +149,13 @@ async function checkAvailability() {
     if (!res.ok) { setMsg("", data.error || "Error checking availability"); return; }
 
     if (data.available) {
-      setMsg("", `✓ ${username}@hostyouremail.com is available`);
+      setMsg("", `✓ ${username} is available`);
       isAvailable = true;
       lastCheckedUsername = username;
       // Register stays disabled — captcha token is never issued by server
       registerBtn.disabled = true;
     } else {
-      setMsg("", `✗ ${username}@hostyouremail.com is already taken`);
+      setMsg("", `✗ ${username} is already taken`);
     }
   } catch {
     setMsg("", "Could not reach server. Try again.");
