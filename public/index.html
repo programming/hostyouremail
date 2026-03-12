@@ -3,71 +3,106 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HostYourEmail — Free Email @ hostyouremail.com</title>
+  <title>hostyouremail.com — free email hosting</title>
   <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
-  <header>
-    <nav>
-      <a href="/" class="logo">HostYourEmail</a>
-      <a href="/register" class="btn btn-primary">Get Your Free Email</a>
-    </nav>
-  </header>
+  <div class="container">
+    <header>
+      <h1>hostyouremail.com</h1>
+      <nav>
+        <a href="/tos">Terms of Service</a> |
+        <a href="/privacy">Privacy Policy</a>
+      </nav>
+    </header>
 
-  <main>
-    <section class="hero">
-      <h1>Your own email address.<br />Free. Forever.</h1>
-      <p class="subtitle">Get a real, working email address at <strong>hostyouremail.com</strong> — powered by MXRoute, no ads, no tracking.</p>
-      <a href="/register" class="btn btn-primary btn-large">Claim your address →</a>
-    </section>
+    <main>
+      <section class="intro">
+        <p>Free email addresses at <strong>hostyouremail.com</strong>. No ads, no tracking, no nonsense. Pick a username and you're done.</p>
+      </section>
 
-    <section class="features">
-      <div class="feature">
-        <div class="feature-icon">📬</div>
-        <h3>Real email hosting</h3>
-        <p>Powered by MXRoute — a trusted email provider. Send and receive from any email client via IMAP/SMTP.</p>
-      </div>
-      <div class="feature">
-        <div class="feature-icon">🔒</div>
-        <h3>No data mining</h3>
-        <p>We don't read your email, sell your data, or show you ads. Your inbox is yours.</p>
-      </div>
-      <div class="feature">
-        <div class="feature-icon">⚡</div>
-        <h3>Instant setup</h3>
-        <p>Pick a username, click register, and you're done. Your address is live in seconds.</p>
-      </div>
-      <div class="feature">
-        <div class="feature-icon">💾</div>
-        <h3>250 MB storage</h3>
-        <p>Enough for thousands of messages. Access your mail via our webmail or any IMAP client.</p>
-      </div>
-      <div class="feature">
-        <div class="feature-icon">🌐</div>
-        <h3>Webmail included</h3>
-        <p>Log in anytime at <a href="https://webmail.mxroute.com/" target="_blank" rel="noopener">webmail.mxroute.com</a> — no setup required.</p>
-      </div>
-      <div class="feature">
-        <div class="feature-icon">🆓</div>
-        <h3>Actually free</h3>
-        <p>No credit card. No trial period. No hidden fees. Just a free email address.</p>
-      </div>
-    </section>
+      <section class="register-section" id="register-section">
+        <h2>Get your address</h2>
 
-    <section class="cta">
-      <h2>Ready to get started?</h2>
-      <p>Thousands of usernames are still available. Grab yours before it's gone.</p>
-      <a href="/register" class="btn btn-primary btn-large">Get your free email →</a>
-    </section>
-  </main>
+        <div class="form-row">
+          <div class="username-wrap">
+            <input
+              type="text"
+              id="username"
+              placeholder="username"
+              autocomplete="off"
+              autocorrect="off"
+              autocapitalize="off"
+              spellcheck="false"
+              maxlength="32"
+            /><span class="domain-suffix">@hostyouremail.com</span>
+          </div>
+          <button id="check-btn" type="button">Check</button>
+        </div>
 
-  <footer>
-    <p>
-      &copy; 2025 HostYourEmail &mdash;
-      <a href="/tos">Terms of Service</a> &middot;
-      <a href="/privacy">Privacy Policy</a>
-    </p>
-    <p class="footer-note">Email hosting provided by <a href="https://mxroute.com" target="_blank" rel="noopener">MXRoute</a>.</p>
-  </footer>
+        <div id="availability-msg" class="availability-msg" aria-live="polite"></div>
+
+        <button id="register-btn" type="button" disabled>Register</button>
+
+        <p class="hint">2–32 characters. Letters, numbers, dots, hyphens, underscores.</p>
+        <p class="tos-note">By registering you agree to the <a href="/tos">Terms of Service</a> and <a href="/privacy">Privacy Policy</a>.</p>
+      </section>
+
+      <section class="success-section" id="success-section" hidden>
+        <h2>Your email is ready</h2>
+        <p>Save your password — it will not be shown again.</p>
+
+        <table class="result-table">
+          <tr>
+            <th>Email</th>
+            <td><code id="result-email"></code></td>
+            <td><button class="copy-btn" data-target="result-email">copy</button></td>
+          </tr>
+          <tr>
+            <th>Password</th>
+            <td>
+              <code id="result-password" class="blurred"></code>
+            </td>
+            <td>
+              <button class="copy-btn" data-target="result-password">copy</button>
+              <button id="reveal-btn" type="button">show</button>
+            </td>
+          </tr>
+        </table>
+
+        <p class="warning">⚠ Copy your password before leaving this page.</p>
+
+        <a href="https://webmail.hostyouremail.com/" target="_blank" rel="noopener" class="webmail-link">Open webmail →</a>
+
+        <details class="imap-details">
+          <summary>Email client settings</summary>
+          <table class="settings-table">
+            <tr><th>IMAP / SMTP server</th><td>fusion.mxrouting.net</td></tr>
+            <tr><th>IMAP port</th><td>993 (SSL)</td></tr>
+            <tr><th>SMTP port</th><td>465 (SSL)</td></tr>
+            <tr><th>Username</th><td>your full email address</td></tr>
+          </table>
+        </details>
+      </section>
+
+      <section class="info">
+        <h2>What you get</h2>
+        <ul>
+          <li>A real email address you can send and receive from</li>
+          <li>250 MB of storage</li>
+          <li>Webmail access at <a href="https://webmail.hostyouremail.com/">webmail.hostyouremail.com</a></li>
+          <li>IMAP and SMTP support for any email client</li>
+          <li>No registration required beyond choosing a username</li>
+          <li>Free, forever</li>
+        </ul>
+      </section>
+    </main>
+
+    <footer>
+      <p>&copy; 2025 hostyouremail.com &mdash; <a href="/tos">Terms of Service</a> | <a href="/privacy">Privacy Policy</a></p>
+    </footer>
+  </div>
+
+  <script src="/register.js"></script>
 </body>
 </html>
