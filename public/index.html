@@ -1,107 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>hostyouremail.com — free email hosting</title>
-  <link rel="stylesheet" href="/style.css" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>hostyouremail.com</title>
+  <style>
+    .blurred { filter: blur(5px); user-select: none; }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>hostyouremail.com</h1>
-      <nav>
-        <a href="/tos">Terms of Service</a> |
-        <a href="/privacy">Privacy Policy</a>
-      </nav>
-    </header>
 
-    <main>
-      <section class="intro">
-        <p>Free email addresses at <strong>hostyouremail.com</strong>. No ads, no tracking, no nonsense. Pick a username and you're done.</p>
-      </section>
+  <h1>hostyouremail.com</h1>
+  <p><em>Free email addresses. No bullshit.</em></p>
 
-      <section class="register-section" id="register-section">
-        <h2>Get your address</h2>
+  <p>Pick a username, get a real working email address at <strong>hostyouremail.com</strong>. 250MB storage, webmail included, IMAP/SMTP support. Free forever.</p>
 
-        <div class="form-row">
-          <div class="username-wrap">
-            <input
-              type="text"
-              id="username"
-              placeholder="username"
-              autocomplete="off"
-              autocorrect="off"
-              autocapitalize="off"
-              spellcheck="false"
-              maxlength="32"
-            /><span class="domain-suffix">@hostyouremail.com</span>
-          </div>
-          <button id="check-btn" type="button">Check</button>
-        </div>
+  <hr>
 
-        <div id="availability-msg" class="availability-msg" aria-live="polite"></div>
+  <h2>Get your address</h2>
 
-        <button id="register-btn" type="button" disabled>Register</button>
-
-        <p class="hint">2–32 characters. Letters, numbers, dots, hyphens, underscores.</p>
-        <p class="tos-note">By registering you agree to the <a href="/tos">Terms of Service</a> and <a href="/privacy">Privacy Policy</a>.</p>
-      </section>
-
-      <section class="success-section" id="success-section" hidden>
-        <h2>Your email is ready</h2>
-        <p>Save your password — it will not be shown again.</p>
-
-        <table class="result-table">
-          <tr>
-            <th>Email</th>
-            <td><code id="result-email"></code></td>
-            <td><button class="copy-btn" data-target="result-email">copy</button></td>
-          </tr>
-          <tr>
-            <th>Password</th>
-            <td>
-              <code id="result-password" class="blurred"></code>
-            </td>
-            <td>
-              <button class="copy-btn" data-target="result-password">copy</button>
-              <button id="reveal-btn" type="button">show</button>
-            </td>
-          </tr>
-        </table>
-
-        <p class="warning">⚠ Copy your password before leaving this page.</p>
-
-        <a href="https://webmail.hostyouremail.com/" target="_blank" rel="noopener" class="webmail-link">Open webmail →</a>
-
-        <details class="imap-details">
-          <summary>Email client settings</summary>
-          <table class="settings-table">
-            <tr><th>IMAP / SMTP server</th><td>fusion.mxrouting.net</td></tr>
-            <tr><th>IMAP port</th><td>993 (SSL)</td></tr>
-            <tr><th>SMTP port</th><td>465 (SSL)</td></tr>
-            <tr><th>Username</th><td>your full email address</td></tr>
-          </table>
-        </details>
-      </section>
-
-      <section class="info">
-        <h2>What you get</h2>
-        <ul>
-          <li>A real email address you can send and receive from</li>
-          <li>250 MB of storage</li>
-          <li>Webmail access at <a href="https://webmail.hostyouremail.com/">webmail.hostyouremail.com</a></li>
-          <li>IMAP and SMTP support for any email client</li>
-          <li>No registration required beyond choosing a username</li>
-          <li>Free, forever</li>
-        </ul>
-      </section>
-    </main>
-
-    <footer>
-      <p>&copy; 2025 hostyouremail.com &mdash; <a href="/tos">Terms of Service</a> | <a href="/privacy">Privacy Policy</a></p>
-    </footer>
+  <div id="register-section">
+    <p>
+      <input type="text" id="username" placeholder="username" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" maxlength="32" size="20">
+      @hostyouremail.com
+      <button id="check-btn" type="button">Check availability</button>
+    </p>
+    <p id="availability-msg"></p>
+    <p><button id="register-btn" type="button" disabled>Register</button></p>
+    <p><small>2–32 characters. Letters, numbers, dots, hyphens, underscores. By registering you agree to the <a href="/tos">Terms of Service</a> and <a href="/privacy">Privacy Policy</a>.</small></p>
   </div>
+
+  <div id="success-section" hidden>
+    <p>&#10003; <strong>Your email is ready.</strong> Save your password &mdash; it will not be shown again.</p>
+    <table>
+      <tr>
+        <td><strong>Email</strong></td>
+        <td><code id="result-email"></code></td>
+        <td><button class="copy-btn" data-target="result-email" type="button">copy</button></td>
+      </tr>
+      <tr>
+        <td><strong>Password</strong></td>
+        <td><code id="result-password" class="blurred"></code></td>
+        <td>
+          <button class="copy-btn" data-target="result-password" type="button">copy</button>
+          <button id="reveal-btn" type="button">show</button>
+        </td>
+      </tr>
+    </table>
+    <p><strong>&#9888; Copy your password before leaving this page.</strong></p>
+    <p><a href="https://webmail.hostyouremail.com/">Open webmail &rarr;</a></p>
+    <details>
+      <summary>Email client settings</summary>
+      <table>
+        <tr><td><strong>IMAP / SMTP server</strong></td><td>fusion.mxrouting.net</td></tr>
+        <tr><td><strong>IMAP port</strong></td><td>993 (SSL)</td></tr>
+        <tr><td><strong>SMTP port</strong></td><td>465 (SSL)</td></tr>
+        <tr><td><strong>Username</strong></td><td>your full email address</td></tr>
+      </table>
+    </details>
+  </div>
+
+  <hr>
+
+  <h2>What you get</h2>
+  <ul>
+    <li>A real email address you can send and receive from</li>
+    <li>250 MB storage</li>
+    <li>Webmail at <a href="https://webmail.hostyouremail.com/">webmail.hostyouremail.com</a></li>
+    <li>IMAP and SMTP for any email client</li>
+    <li>No sign-up form, no phone number, no credit card</li>
+    <li>Free, forever</li>
+  </ul>
+
+  <hr>
+
+  <p><small><a href="/tos">Terms of Service</a> &middot; <a href="/privacy">Privacy Policy</a> &middot; <a href="mailto:admin@hostyouremail.com">Contact</a></small></p>
 
   <script src="/register.js"></script>
 </body>

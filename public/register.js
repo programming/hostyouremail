@@ -38,6 +38,7 @@ const registerBtn     = document.getElementById("register-btn");
 const availMsg        = document.getElementById("availability-msg");
 const registerSection = document.getElementById("register-section");
 const successSection  = document.getElementById("success-section");
+
 const resultEmail     = document.getElementById("result-email");
 const resultPassword  = document.getElementById("result-password");
 const revealBtn       = document.getElementById("reveal-btn");
