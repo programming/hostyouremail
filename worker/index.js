@@ -18,7 +18,9 @@ function mxFetch(env, path, method = "GET", body = null) {
   const opts = {
     method,
     headers: {
-      "X-Api-Key": env.MXROUTE_API_KEY,
+      "X-API-Key": env.MXROUTE_API_KEY,
+      "X-Server": env.MXROUTE_SERVER,
+      "X-Username": env.MXROUTE_USERNAME,
       "Content-Type": "application/json",
       "Accept": "application/json",
     },
