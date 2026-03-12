@@ -1,3 +1,30 @@
+// ─── Fake captcha ─────────────────────────────────────────────────────────
+const captchaQuestion = document.getElementById("captcha-question");
+const captchaAnswer   = document.getElementById("captcha-answer");
+const captchaBtn      = document.getElementById("captcha-btn");
+const captchaMsg      = document.getElementById("captcha-msg");
+
+function newCaptcha() {
+  const a = Math.floor(Math.random() * 20) + 1;
+  const b = Math.floor(Math.random() * 20) + 1;
+  captchaQuestion.textContent = `${a} + ${b}`;
+  captchaAnswer.value = "";
+  captchaMsg.textContent = "";
+}
+newCaptcha();
+
+captchaBtn.addEventListener("click", () => {
+  captchaMsg.textContent = "Incorrect. Please try again.";
+  captchaAnswer.value = "";
+  newCaptcha();
+});
+
+captchaAnswer.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") captchaBtn.click();
+});
+
+// ──────────────────────────────────────────────────────────────────────────
+
 const WORKER_URL = (() => {
   const host = location.hostname;
   if (host === "localhost" || host === "127.0.0.1") return "http://localhost:8787";
