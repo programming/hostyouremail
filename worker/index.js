@@ -1,3 +1,8 @@
+const RESERVED = new Set([
+  "admin",
+  "info",
+]);
+
 const MXROUTE_BASE = "https://api.mxroute.com";
 const DOMAIN = "hostyouremail.com";
 
@@ -173,6 +178,8 @@ export default {
 
       const validation = validateUsername(username);
       if (!validation.ok) return json({ available: false, reason: validation.reason });
+
+      if (RESERVED.has(username.toLowerCase())) return json({ available: false });
 
       try {
         const res = await mxFetch(env, `/domains/${DOMAIN}/email-accounts`);
