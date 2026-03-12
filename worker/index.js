@@ -29,6 +29,41 @@ function mxFetch(env, path, method = "GET", body = null) {
   return fetch(`${MXROUTE_BASE}${path}`, opts);
 }
 
+// ─── HMAC helpers ─────────────────────────────────────────────────────────
+
+async function hmacSign(secret, message) {
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  const sig = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(message));
+  return btoa(String.fromCharCode(...new Uint8Array(sig)));
+}
+
+async function hmacVerify(secret, message, token) {
+  const expected = await hmacSign(secret, message);
+  // constant-time comparison
+  if (expected.length !== token.length) return false;
+  let diff = 0;
+  for (let i = 0; i < expected.length; i++) diff |= expected.charCodeAt(i) ^ token.charCodeAt(i);
+  return diff === 0;
+}
+
+// ─── Captcha helpers ──────────────────────────────────────────────────────
+
+function newQuestion() {
+  const a = Math.floor(Math.random() * 20) + 1;
+  const b = Math.floor(Math.random() * 20) + 1;
+  return { a, b, question: `${a} + ${b}` };
+}
+
+// Token = HMAC(CAPTCHA_SECRET, "captcha-passed:" + nonce)
+// The nonce is issued by /api/captcha. The token is ONLY valid if we sign it,
+// which we never do (captcha always fails). So registration always rejects.
+
 export default {
   async fetch(request, env) {
     if (request.method === "OPTIONS") {
@@ -37,6 +72,21 @@ export default {
 
     const url = new URL(request.url);
     const path = url.pathname;
+
+    // GET /api/captcha — issue a nonce + question
+    if (path === "/api/captcha" && request.method === "GET") {
+      const nonce = crypto.randomUUID();
+      const { question } = newQuestion();
+      return json({ nonce, question });
+    }
+
+    // POST /api/captcha/verify — always fails, never issues a token
+    if (path === "/api/captcha/verify" && request.method === "POST") {
+      // Regenerate a fresh nonce+question for the next attempt
+      const nonce = crypto.randomUUID();
+      const { question } = newQuestion();
+      return json({ success: false, message: "Incorrect. Please try again.", nonce, question });
+    }
 
     // GET /api/check?username=john
     if (path === "/api/check" && request.method === "GET") {
@@ -53,7 +103,6 @@ export default {
           return json({ error: "upstream error", detail: text }, 502);
         }
         const data = await res.json();
-        // data is an array of email account objects
         const accounts = Array.isArray(data) ? data : (data.data || data.accounts || []);
         const taken = accounts.some(
           (a) => (a.username || a.email || "").toLowerCase().split("@")[0] === username.toLowerCase()
@@ -64,16 +113,24 @@ export default {
       }
     }
 
-    // POST /api/register  { username, password }
+    // POST /api/register { username, password, captcha_token, captcha_nonce }
     if (path === "/api/register" && request.method === "POST") {
       let body;
-      try {
-        body = await request.json();
-      } catch {
-        return json({ error: "invalid JSON" }, 400);
+      try { body = await request.json(); }
+      catch { return json({ error: "invalid JSON" }, 400); }
+
+      const { username, password, captcha_token, captcha_nonce } = body;
+
+      // Enforce captcha server-side — token must be HMAC(CAPTCHA_SECRET, "captcha-passed:" + nonce)
+      // Since we never issue this token, registration always fails here.
+      if (!captcha_token || !captcha_nonce) {
+        return json({ error: "Captcha required" }, 403);
+      }
+      const valid = await hmacVerify(env.CAPTCHA_SECRET, "captcha-passed:" + captcha_nonce, captcha_token);
+      if (!valid) {
+        return json({ error: "Captcha required" }, 403);
       }
 
-      const { username, password } = body;
       if (!username || !password) return json({ error: "username and password required" }, 400);
 
       const validation = validateUsername(username);
@@ -86,11 +143,7 @@ export default {
           env,
           `/domains/${DOMAIN}/email-accounts`,
           "POST",
-          {
-            username: username.toLowerCase(),
-            password,
-            quota: 250,
-          }
+          { username: username.toLowerCase(), password, quota: 250 }
         );
 
         const text = await res.text();
@@ -98,7 +151,6 @@ export default {
         try { data = JSON.parse(text); } catch { data = { raw: text }; }
 
         if (!res.ok) {
-          // Check if already exists
           const msg = (data.message || data.error || text).toLowerCase();
           if (msg.includes("exist") || msg.includes("taken") || msg.includes("duplicate")) {
             return json({ error: "Username already taken" }, 409);
@@ -106,10 +158,7 @@ export default {
           return json({ error: data.message || data.error || "Registration failed", detail: data }, 502);
         }
 
-        return json({
-          success: true,
-          email: `${username.toLowerCase()}@${DOMAIN}`,
-        });
+        return json({ success: true, email: `${username.toLowerCase()}@${DOMAIN}` });
       } catch (e) {
         return json({ error: e.message }, 500);
       }

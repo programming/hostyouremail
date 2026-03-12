@@ -1,29 +1,3 @@
-// ─── Fake captcha ─────────────────────────────────────────────────────────
-const captchaQuestion = document.getElementById("captcha-question");
-const captchaAnswer   = document.getElementById("captcha-answer");
-const captchaBtn      = document.getElementById("captcha-btn");
-const captchaMsg      = document.getElementById("captcha-msg");
-
-function newCaptcha() {
-  const a = Math.floor(Math.random() * 20) + 1;
-  const b = Math.floor(Math.random() * 20) + 1;
-  captchaQuestion.textContent = `${a} + ${b}`;
-  captchaAnswer.value = "";
-  captchaMsg.textContent = "";
-}
-newCaptcha();
-
-captchaBtn.addEventListener("click", () => {
-  newCaptcha();
-  captchaMsg.textContent = "Incorrect. Please try again.";
-});
-
-captchaAnswer.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") captchaBtn.click();
-});
-
-// ──────────────────────────────────────────────────────────────────────────
-
 const WORKER_URL = (() => {
   const host = location.hostname;
   if (host === "localhost" || host === "127.0.0.1") return "http://localhost:8787";
@@ -64,15 +38,59 @@ const registerBtn     = document.getElementById("register-btn");
 const availMsg        = document.getElementById("availability-msg");
 const registerSection = document.getElementById("register-section");
 const successSection  = document.getElementById("success-section");
-
 const resultEmail     = document.getElementById("result-email");
 const resultPassword  = document.getElementById("result-password");
 const revealBtn       = document.getElementById("reveal-btn");
+const captchaQuestion = document.getElementById("captcha-question");
+const captchaAnswer   = document.getElementById("captcha-answer");
+const captchaBtn      = document.getElementById("captcha-btn");
+const captchaMsg      = document.getElementById("captcha-msg");
 
 let lastCheckedUsername = null;
 let isAvailable = false;
+let captchaNonce = null;   // nonce from server
+let captchaToken = null;   // signed token — never issued by server, always null
 
-// ─── Validation ───────────────────────────────────────────────────────────
+// ─── Captcha ──────────────────────────────────────────────────────────────
+async function loadCaptcha() {
+  try {
+    const res = await fetch(`${WORKER_URL}/api/captcha`);
+    const data = await res.json();
+    captchaNonce = data.nonce;
+    captchaQuestion.textContent = data.question;
+    captchaAnswer.value = "";
+  } catch {
+    captchaQuestion.textContent = "unavailable";
+  }
+}
+loadCaptcha();
+
+captchaBtn.addEventListener("click", async () => {
+  captchaBtn.disabled = true;
+  try {
+    const res = await fetch(`${WORKER_URL}/api/captcha/verify`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nonce: captchaNonce, answer: captchaAnswer.value.trim() }),
+    });
+    const data = await res.json();
+    // Server always returns success: false — update nonce/question for next attempt
+    captchaNonce = data.nonce;
+    captchaQuestion.textContent = data.question;
+    captchaAnswer.value = "";
+    captchaMsg.textContent = data.message || "Incorrect. Please try again.";
+  } catch {
+    captchaMsg.textContent = "Could not reach server. Try again.";
+  } finally {
+    captchaBtn.disabled = false;
+  }
+});
+
+captchaAnswer.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") captchaBtn.click();
+});
+
+// ─── Username validation ──────────────────────────────────────────────────
 function validateUsername(u) {
   if (!u) return "Enter a username";
   if (u.length < 2) return "At least 2 characters";
@@ -84,16 +102,15 @@ function validateUsername(u) {
 
 function setMsg(state, text) {
   availMsg.textContent = text;
-  availMsg.className = `availability-msg ${state}`;
+  availMsg.className = state;
 }
 
-// ─── Reset on edit ────────────────────────────────────────────────────────
 usernameInput.addEventListener("input", () => {
   if (usernameInput.value !== lastCheckedUsername) {
     isAvailable = false;
     registerBtn.disabled = true;
     availMsg.textContent = "";
-    availMsg.className = "availability-msg";
+    availMsg.className = "";
   }
 });
 
@@ -101,15 +118,15 @@ usernameInput.addEventListener("keydown", (e) => {
   if (e.key === "Enter") checkAvailability();
 });
 
-// ─── Check ────────────────────────────────────────────────────────────────
+// ─── Check availability ───────────────────────────────────────────────────
 checkBtn.addEventListener("click", checkAvailability);
 
 async function checkAvailability() {
   const username = usernameInput.value.trim();
   const err = validateUsername(username);
-  if (err) { setMsg("taken", err); return; }
+  if (err) { setMsg("", err); return; }
 
-  setMsg("checking", "Checking…");
+  setMsg("", "Checking…");
   checkBtn.disabled = true;
   registerBtn.disabled = true;
   isAvailable = false;
@@ -117,18 +134,19 @@ async function checkAvailability() {
   try {
     const res = await fetch(`${WORKER_URL}/api/check?username=${encodeURIComponent(username)}`);
     const data = await res.json();
-    if (!res.ok) { setMsg("error", data.error || "Error checking availability"); return; }
+    if (!res.ok) { setMsg("", data.error || "Error checking availability"); return; }
 
     if (data.available) {
-      setMsg("available", `✓ ${username}@hostyouremail.com is available`);
+      setMsg("", `✓ ${username}@hostyouremail.com is available`);
       isAvailable = true;
       lastCheckedUsername = username;
-      registerBtn.disabled = false;
+      // Register stays disabled — captcha token is never issued by server
+      registerBtn.disabled = true;
     } else {
-      setMsg("taken", `✗ ${username}@hostyouremail.com is already taken`);
+      setMsg("", `✗ ${username}@hostyouremail.com is already taken`);
     }
   } catch {
-    setMsg("error", "Could not reach server. Try again.");
+    setMsg("", "Could not reach server. Try again.");
   } finally {
     checkBtn.disabled = false;
   }
@@ -138,7 +156,7 @@ async function checkAvailability() {
 registerBtn.addEventListener("click", async () => {
   const username = usernameInput.value.trim();
   if (!isAvailable || username !== lastCheckedUsername) {
-    setMsg("taken", "Please check availability first");
+    setMsg("", "Please check availability first");
     return;
   }
 
@@ -150,12 +168,17 @@ registerBtn.addEventListener("click", async () => {
     const res = await fetch(`${WORKER_URL}/api/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify({
+        username,
+        password,
+        captcha_token: captchaToken,   // always null — server will reject
+        captcha_nonce: captchaNonce,
+      }),
     });
     const data = await res.json();
 
     if (!res.ok) {
-      setMsg("taken", data.error || "Registration failed");
+      setMsg("", data.error || "Registration failed");
       registerBtn.disabled = false;
       registerBtn.textContent = "Register";
       return;
@@ -167,7 +190,7 @@ registerBtn.addEventListener("click", async () => {
     successSection.hidden = false;
     successSection.scrollIntoView({ behavior: "smooth" });
   } catch {
-    setMsg("error", "Network error. Please try again.");
+    setMsg("", "Network error. Please try again.");
     registerBtn.disabled = false;
     registerBtn.textContent = "Register";
   }
@@ -192,7 +215,7 @@ document.addEventListener("click", async (e) => {
 // ─── Reveal password ──────────────────────────────────────────────────────
 if (revealBtn) {
   revealBtn.addEventListener("click", () => {
-    const isBlurred = resultPassword.classList.toggle("blurred");
-    revealBtn.textContent = isBlurred ? "show" : "hide";
+    resultPassword.classList.toggle("blurred");
+    revealBtn.textContent = resultPassword.classList.contains("blurred") ? "show" : "hide";
   });
 }
