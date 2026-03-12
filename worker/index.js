@@ -45,24 +45,97 @@ async function hmacSign(secret, message) {
 
 async function hmacVerify(secret, message, token) {
   const expected = await hmacSign(secret, message);
-  // constant-time comparison
   if (expected.length !== token.length) return false;
   let diff = 0;
   for (let i = 0; i < expected.length; i++) diff |= expected.charCodeAt(i) ^ token.charCodeAt(i);
   return diff === 0;
 }
 
-// ─── Captcha helpers ──────────────────────────────────────────────────────
+// ─── Captcha image generator ───────────────────────────────────────────────
 
-function newQuestion() {
-  const a = Math.floor(Math.random() * 20) + 1;
-  const b = Math.floor(Math.random() * 20) + 1;
-  return { a, b, question: `${a} + ${b}` };
+function r(rand, i) { return rand[i % rand.length]; }
+
+function generateCaptchaSvg() {
+  // Unambiguous chars only
+  const charset = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  const len = 6;
+  const rand = new Uint8Array(256);
+  crypto.getRandomValues(rand);
+
+  let text = "";
+  for (let i = 0; i < len; i++) text += charset[r(rand, i) % charset.length];
+
+  const W = 200, H = 70;
+  let ri = len; // rand index offset
+
+  let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">`;
+
+  // Background
+  svg += `<rect width="${W}" height="${H}" fill="#f4f4f0" rx="2"/>`;
+
+  // Speckle noise
+  for (let i = 0; i < 120; i++) {
+    const x = r(rand, ri++) % W;
+    const y = r(rand, ri++) % H;
+    const gray = 140 + r(rand, ri++) % 80;
+    svg += `<circle cx="${x}" cy="${y}" r="0.8" fill="rgb(${gray},${gray},${gray})"/>`;
+  }
+
+  // Wavy interference lines (bezier curves)
+  for (let i = 0; i < 5; i++) {
+    const x1 = r(rand, ri++) % 30;
+    const y1 = 10 + r(rand, ri++) % (H - 20);
+    const cx1 = 40 + r(rand, ri++) % 40;
+    const cy1 = r(rand, ri++) % H;
+    const cx2 = 110 + r(rand, ri++) % 40;
+    const cy2 = r(rand, ri++) % H;
+    const x2 = W - r(rand, ri++) % 30;
+    const y2 = 10 + r(rand, ri++) % (H - 20);
+    const cr = 60 + r(rand, ri++) % 120;
+    const cg = 60 + r(rand, ri++) % 120;
+    const cb = 60 + r(rand, ri++) % 120;
+    const sw = 1 + (r(rand, ri++) % 10) / 10;
+    svg += `<path d="M${x1},${y1} C${cx1},${cy1} ${cx2},${cy2} ${x2},${y2}" stroke="rgb(${cr},${cg},${cb})" stroke-width="${sw}" fill="none" opacity="0.6"/>`;
+  }
+
+  // Characters — each with random transform, size, color, slight skew
+  const fonts = ["serif", "sans-serif", "monospace"];
+  const slotW = W / (len + 1);
+
+  for (let i = 0; i < len; i++) {
+    const baseX = slotW * (i + 0.75) + (r(rand, ri++) % 12) - 6;
+    const baseY = 38 + (r(rand, ri++) % 16) - 8;
+    const rotate = (r(rand, ri++) % 50) - 25;
+    const size = 24 + r(rand, ri++) % 10;
+    const cr = r(rand, ri++) % 90;
+    const cg = r(rand, ri++) % 90;
+    const cb = r(rand, ri++) % 90;
+    const font = fonts[r(rand, ri++) % fonts.length];
+    const bold = r(rand, ri++) % 2 === 0 ? "bold" : "normal";
+    const skewX = (r(rand, ri++) % 20) - 10;
+    svg += `<text `
+      + `x="${baseX}" y="${baseY}" `
+      + `font-family="${font}" font-size="${size}" font-weight="${bold}" `
+      + `fill="rgb(${cr},${cg},${cb})" `
+      + `transform="rotate(${rotate},${baseX},${baseY}) skewX(${skewX})">`
+      + `${text[i]}</text>`;
+  }
+
+  // Overlay a few short random line segments on top of text
+  for (let i = 0; i < 6; i++) {
+    const x1 = r(rand, ri++) % W;
+    const y1 = r(rand, ri++) % H;
+    const x2 = x1 + (r(rand, ri++) % 40) - 20;
+    const y2 = y1 + (r(rand, ri++) % 20) - 10;
+    const gray = 80 + r(rand, ri++) % 80;
+    svg += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="rgb(${gray},${gray},${gray})" stroke-width="1" opacity="0.5"/>`;
+  }
+
+  svg += "</svg>";
+  return { text, svg };
 }
 
-// Token = HMAC(CAPTCHA_SECRET, "captcha-passed:" + nonce)
-// The nonce is issued by /api/captcha. The token is ONLY valid if we sign it,
-// which we never do (captcha always fails). So registration always rejects.
+// ─── Main handler ──────────────────────────────────────────────────────────
 
 export default {
   async fetch(request, env) {
@@ -73,19 +146,24 @@ export default {
     const url = new URL(request.url);
     const path = url.pathname;
 
-    // GET /api/captcha — issue a nonce + question
+    // GET /api/captcha — generate image, return SVG + nonce
     if (path === "/api/captcha" && request.method === "GET") {
       const nonce = crypto.randomUUID();
-      const { question } = newQuestion();
-      return json({ nonce, question });
+      const { svg } = generateCaptchaSvg();
+      // Answer is discarded — we never accept any answer
+      return json({ nonce, image: svg });
     }
 
-    // POST /api/captcha/verify — always fails, never issues a token
+    // POST /api/captcha/verify — always fails, returns fresh image
     if (path === "/api/captcha/verify" && request.method === "POST") {
-      // Regenerate a fresh nonce+question for the next attempt
       const nonce = crypto.randomUUID();
-      const { question } = newQuestion();
-      return json({ success: false, message: "Incorrect. Please try again.", nonce, question });
+      const { svg } = generateCaptchaSvg();
+      return json({
+        success: false,
+        message: "The characters you entered didn't match. Please try again.",
+        nonce,
+        image: svg,
+      });
     }
 
     // GET /api/check?username=john
@@ -121,21 +199,17 @@ export default {
 
       const { username, password, captcha_token, captcha_nonce } = body;
 
-      // Enforce captcha server-side — token must be HMAC(CAPTCHA_SECRET, "captcha-passed:" + nonce)
-      // Since we never issue this token, registration always fails here.
       if (!captcha_token || !captcha_nonce) {
-        return json({ error: "Captcha required" }, 403);
+        return json({ error: "Please complete the captcha" }, 403);
       }
       const valid = await hmacVerify(env.CAPTCHA_SECRET, "captcha-passed:" + captcha_nonce, captcha_token);
       if (!valid) {
-        return json({ error: "Captcha required" }, 403);
+        return json({ error: "Please complete the captcha" }, 403);
       }
 
       if (!username || !password) return json({ error: "username and password required" }, 400);
-
       const validation = validateUsername(username);
       if (!validation.ok) return json({ error: validation.reason }, 400);
-
       if (password.length < 16) return json({ error: "password too short" }, 400);
 
       try {

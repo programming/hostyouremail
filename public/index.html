@@ -26,10 +26,13 @@
       <button id="check-btn" type="button">Check availability</button>
     </p>
     <p id="availability-msg"></p>
+    <p>Type the characters you see in the image:</p>
     <p>
-      Prove you are human:
-      <strong><span id="captcha-question"></span></strong>
-      = <input type="text" id="captcha-answer" size="6" autocomplete="off">
+      <img id="captcha-img" src="" alt="captcha" style="display:block;border:1px solid #aaa;margin-bottom:4px;">
+      <a href="#" id="captcha-refresh" style="font-size:small;">&#8635; new image</a>
+    </p>
+    <p>
+      <input type="text" id="captcha-answer" size="10" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" placeholder="Enter characters">
       <button id="captcha-btn" type="button">Verify</button>
     </p>
     <p id="captcha-msg"></p>

@@ -41,7 +41,6 @@ const successSection  = document.getElementById("success-section");
 const resultEmail     = document.getElementById("result-email");
 const resultPassword  = document.getElementById("result-password");
 const revealBtn       = document.getElementById("reveal-btn");
-const captchaQuestion = document.getElementById("captcha-question");
 const captchaAnswer   = document.getElementById("captcha-answer");
 const captchaBtn      = document.getElementById("captcha-btn");
 const captchaMsg      = document.getElementById("captcha-msg");
@@ -52,18 +51,32 @@ let captchaNonce = null;   // nonce from server
 let captchaToken = null;   // signed token — never issued by server, always null
 
 // ─── Captcha ──────────────────────────────────────────────────────────────
+const captchaImg     = document.getElementById("captcha-img");
+const captchaRefresh = document.getElementById("captcha-refresh");
+
+function setSvgImage(svg) {
+  const encoded = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svg)));
+  captchaImg.src = encoded;
+}
+
 async function loadCaptcha() {
   try {
     const res = await fetch(`${WORKER_URL}/api/captcha`);
     const data = await res.json();
     captchaNonce = data.nonce;
-    captchaQuestion.textContent = data.question;
+    setSvgImage(data.image);
     captchaAnswer.value = "";
+    captchaMsg.textContent = "";
   } catch {
-    captchaQuestion.textContent = "unavailable";
+    captchaMsg.textContent = "Could not load captcha.";
   }
 }
 loadCaptcha();
+
+captchaRefresh.addEventListener("click", (e) => {
+  e.preventDefault();
+  loadCaptcha();
+});
 
 captchaBtn.addEventListener("click", async () => {
   captchaBtn.disabled = true;
@@ -74,11 +87,10 @@ captchaBtn.addEventListener("click", async () => {
       body: JSON.stringify({ nonce: captchaNonce, answer: captchaAnswer.value.trim() }),
     });
     const data = await res.json();
-    // Server always returns success: false — update nonce/question for next attempt
     captchaNonce = data.nonce;
-    captchaQuestion.textContent = data.question;
+    setSvgImage(data.image);
     captchaAnswer.value = "";
-    captchaMsg.textContent = data.message || "Incorrect. Please try again.";
+    captchaMsg.textContent = data.message;
   } catch {
     captchaMsg.textContent = "Could not reach server. Try again.";
   } finally {
