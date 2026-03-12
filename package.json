@@ -1,0 +1,11 @@
+{
+  "name": "hostyouremail",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev:worker": "wrangler dev worker/index.js --port 8787",
+    "dev:pages": "npx serve public -p 3000",
+    "deploy:worker": "wrangler deploy",
+    "deploy:pages": "wrangler pages deploy public --project-name hostyouremail"
+  }
+}

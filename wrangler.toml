@@ -1,0 +1,7 @@
+name = "hostyouremail-worker"
+main = "worker/index.js"
+compatibility_date = "2024-01-01"
+
+[vars]
+MXROUTE_DOMAIN = "hostyouremail.com"
+MXROUTE_QUOTA = "250"
