@@ -166,7 +166,7 @@ document.addEventListener("click", async (e) => {
 // ─── Reveal password ──────────────────────────────────────────────────────
 if (revealBtn) {
   revealBtn.addEventListener("click", () => {
-    const hidden = resultPassword.classList.toggle("revealed");
-    revealBtn.textContent = resultPassword.classList.contains("revealed") ? "hide" : "show";
+    const isBlurred = resultPassword.classList.toggle("blurred");
+    revealBtn.textContent = isBlurred ? "show" : "hide";
   });
 }
