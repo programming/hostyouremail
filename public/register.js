@@ -14,9 +14,8 @@ function newCaptcha() {
 newCaptcha();
 
 captchaBtn.addEventListener("click", () => {
-  captchaMsg.textContent = "Incorrect. Please try again.";
-  captchaAnswer.value = "";
   newCaptcha();
+  captchaMsg.textContent = "Incorrect. Please try again.";
 });
 
 captchaAnswer.addEventListener("keydown", (e) => {
