@@ -1,76 +1,979 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>hostyouremail.com</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>So you want to host your own email</title>
   <style>
-    .blurred { filter: blur(5px); user-select: none; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 18px;
+      line-height: 1.75;
+      color: #1a1a1a;
+      background: #fafaf8;
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      max-width: 780px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      line-height: 1.2;
+      margin-bottom: 0.5rem;
+      font-weight: 700;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      margin-top: 3rem;
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.3rem;
+      border-bottom: 2px solid #1a1a1a;
+    }
+
+    h3 {
+      font-size: 1.15rem;
+      margin-top: 1.75rem;
+      margin-bottom: 0.5rem;
+      font-weight: 700;
+    }
+
+    p { margin-bottom: 1rem; }
+
+    a { color: #1a1a1a; }
+
+    code {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.85em;
+      background: #eeeee8;
+      padding: 0.1em 0.35em;
+      border-radius: 3px;
+    }
+
+    pre {
+      background: #1a1a1a;
+      color: #e8e8e0;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.82em;
+      line-height: 1.6;
+      padding: 1.25rem 1.5rem;
+      border-radius: 4px;
+      overflow-x: auto;
+      margin: 1rem 0 1.25rem;
+    }
+
+    pre code {
+      background: none;
+      padding: 0;
+      font-size: inherit;
+    }
+
+    .note {
+      background: #fffbe6;
+      border-left: 4px solid #e6b800;
+      padding: 0.85rem 1rem;
+      margin: 1.25rem 0;
+      font-size: 0.93em;
+    }
+
+    .warn {
+      background: #fff0f0;
+      border-left: 4px solid #cc3300;
+      padding: 0.85rem 1rem;
+      margin: 1.25rem 0;
+      font-size: 0.93em;
+    }
+
+    .toc {
+      background: #f0f0ea;
+      border: 1px solid #d0d0c8;
+      padding: 1.25rem 1.5rem;
+      margin: 2rem 0;
+      border-radius: 4px;
+    }
+
+    .toc h2 {
+      border: none;
+      margin-top: 0;
+      font-size: 1.1rem;
+    }
+
+    .toc ol {
+      padding-left: 1.25rem;
+    }
+
+    .toc li {
+      margin-bottom: 0.3rem;
+      font-size: 0.95em;
+    }
+
+    .toc a {
+      text-decoration: none;
+    }
+
+    .toc a:hover {
+      text-decoration: underline;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0 1.5rem;
+      font-size: 0.88em;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 0.5rem 0.75rem;
+      text-align: left;
+    }
+
+    th { background: #eeeee8; font-weight: 700; }
+    tr:nth-child(even) { background: #f6f6f2; }
+
+    .subtitle {
+      color: #555;
+      font-size: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid #ccc;
+      margin: 3rem 0;
+    }
+
+    .footer {
+      margin-top: 4rem;
+      padding-top: 2rem;
+      border-top: 2px solid #1a1a1a;
+      font-size: 0.92em;
+      color: #444;
+    }
+
+    .footer a {
+      font-weight: bold;
+      color: #1a1a1a;
+    }
+
+    ol, ul {
+      padding-left: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    li { margin-bottom: 0.4rem; }
+
   </style>
 </head>
 <body>
+<div class="container">
 
-  <h1>hostyouremail.com</h1>
-  <p>Free email addresses for professionals and email enthusiasts.</p>
-  <hr>
+  <h1>So you want to host your own email.</h1>
+  <p class="subtitle">A complete guide to running Mailcow on your own server — from bare VPS to fully operational mail server.</p>
 
-  <h2>Get your address</h2>
-
-  <div id="register-section">
-    <p>
-      <input type="text" id="username" placeholder="username" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" maxlength="32" size="20">
-      @hostyouremail.com
-      <button id="check-btn" type="button">Check availability</button>
-    </p>
-    <p id="availability-msg"></p>
-    <p>Type the characters you see in the image:</p>
-    <p>
-      <img id="captcha-img" src="" alt="captcha" style="display:block;border:1px solid #aaa;margin-bottom:4px;">
-      <a href="#" id="captcha-refresh" style="font-size:small;">&#8635; new image</a>
-    </p>
-    <p>
-      <input type="text" id="captcha-answer" size="10" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" placeholder="Enter characters">
-      <button id="captcha-btn" type="button">Verify</button>
-    </p>
-    <p id="captcha-msg"></p>
-    <p><button id="register-btn" type="button" disabled>Register</button></p>
-    <p><small>By registering you agree to the <a href="/tos">Terms of Service</a> and <a href="/privacy">Privacy Policy</a>.</small></p>
+  <div class="toc">
+    <h2>Contents</h2>
+    <ol>
+      <li><a href="#what-is-mailcow">What is Mailcow?</a></li>
+      <li><a href="#requirements">Server Requirements</a></li>
+      <li><a href="#dns">DNS Configuration</a></li>
+      <li><a href="#server-prep">Server Preparation</a></li>
+      <li><a href="#install">Installing Mailcow</a></li>
+      <li><a href="#ssl">TLS / SSL Certificates</a></li>
+      <li><a href="#firewall">Firewall Rules</a></li>
+      <li><a href="#first-login">First Login and Setup</a></li>
+      <li><a href="#dkim-dmarc-spf">SPF, DKIM, and DMARC</a></li>
+      <li><a href="#reverse-dns">Reverse DNS (PTR)</a></li>
+      <li><a href="#spam">Spam Filtering</a></li>
+      <li><a href="#backups">Backups</a></li>
+      <li><a href="#monitoring">Monitoring and Maintenance</a></li>
+      <li><a href="#troubleshooting">Troubleshooting</a></li>
+      <li><a href="#multiple-domains">Multiple Domains and Aliases</a></li>
+      <li><a href="#sieve">Sieve Filters</a></li>
+      <li><a href="#brute-force">Brute Force Protection</a></li>
+      <li><a href="#deliverability">Deliverability with Gmail and Outlook</a></li>
+      <li><a href="#mta-sts">MTA-STS and DANE</a></li>
+      <li><a href="#fts">Full-Text Search</a></li>
+      <li><a href="#migration">Migrating Existing Mail</a></li>
+      <li><a href="#restore">Restoring from Backup</a></li>
+      <li><a href="#performance">Performance Tuning</a></li>
+    </ol>
   </div>
 
-  <div id="success-section" hidden>
-    <p>&#10003; <strong>Your email is ready.</strong> Save your password &mdash; it will not be shown again.</p>
-    <table>
-      <tr>
-        <td><strong>Email</strong></td>
-        <td><code id="result-email"></code></td>
-        <td><button class="copy-btn" data-target="result-email" type="button">copy</button></td>
-      </tr>
-      <tr>
-        <td><strong>Password</strong></td>
-        <td><code id="result-password" class="blurred"></code></td>
-        <td>
-          <button class="copy-btn" data-target="result-password" type="button">copy</button>
-          <button id="reveal-btn" type="button">show</button>
-        </td>
-      </tr>
-    </table>
-    <p><strong>&#9888; Copy your password before leaving this page.</strong></p>
-    <p><a href="https://webmail.mxroute.com/">Open webmail &rarr;</a></p>
-    <details>
-      <summary>Email client settings</summary>
-      <table>
-        <tr><td><strong>IMAP / SMTP server</strong></td><td>fusion.mxrouting.net</td></tr>
-        <tr><td><strong>IMAP port</strong></td><td>993 (SSL)</td></tr>
-        <tr><td><strong>SMTP port</strong></td><td>465 (SSL)</td></tr>
-        <tr><td><strong>Username</strong></td><td>your full email address</td></tr>
-      </table>
-    </details>
+  <!-- SECTION 1 -->
+  <h2 id="what-is-mailcow">1. What is Mailcow?</h2>
+
+  <p>Mailcow (stylized <strong>mailcow: dockerized</strong>) is an open-source mail server suite that bundles every component you need into a set of Docker containers managed by Docker Compose. Instead of painstakingly installing and wiring together Postfix, Dovecot, Rspamd, ClamAV, SOGo, and a dozen other pieces by hand, Mailcow gives you a single <code>docker compose up</code> command that starts the entire stack.</p>
+
+  <p>Under the hood you get:</p>
+  <ul>
+    <li><strong>Postfix</strong> — SMTP (sending and receiving)</li>
+    <li><strong>Dovecot</strong> — IMAP/POP3 (mailbox access)</li>
+    <li><strong>Rspamd</strong> — spam filtering and DKIM signing</li>
+    <li><strong>ClamAV</strong> — virus scanning</li>
+    <li><strong>SOGo</strong> — webmail, calendar, and contacts</li>
+    <li><strong>Nginx</strong> — reverse proxy and admin UI</li>
+    <li><strong>MySQL / MariaDB</strong> — configuration database</li>
+    <li><strong>Redis</strong> — caching and rate-limiting</li>
+    <li><strong>Certbot / acme.sh</strong> — automatic Let's Encrypt TLS</li>
+  </ul>
+
+  <p>Everything is containerized, which makes upgrades and rollbacks far easier than a traditional bare-metal setup. That said, running a production mail server is a serious operational commitment. This guide walks you through the full setup correctly.</p>
+
+  <!-- SECTION 2 -->
+  <h2 id="requirements">2. Server Requirements</h2>
+
+  <h3>Hardware / VPS specs</h3>
+  <table>
+    <tr><th>Resource</th><th>Minimum</th><th>Recommended</th></tr>
+    <tr><td>CPU</td><td>2 vCPU</td><td>4 vCPU</td></tr>
+    <tr><td>RAM</td><td>4 GB</td><td>8 GB</td></tr>
+    <tr><td>Disk</td><td>20 GB SSD</td><td>50+ GB SSD</td></tr>
+    <tr><td>OS</td><td>Ubuntu 22.04 LTS</td><td>Ubuntu 22.04 / Debian 12</td></tr>
+    <tr><td>IPv4</td><td>1 dedicated IP</td><td>1 dedicated IP</td></tr>
+  </table>
+
+  <div class="note">
+    Your server's IP address must <em>not</em> be on any common blacklists before you start. IP blocks are sold and reallocated, and the previous tenant may have been a spammer — this is out of your control. Verify your IP at <a href="https://mxtoolbox.com/blacklists.aspx">mxtoolbox.com/blacklists</a> before going further. If it's listed, you'll need to either request a new IP from your provider or work through each blocklist's individual delisting process, which can take days and isn't guaranteed.
   </div>
+
+  <h3>Networking requirements</h3>
+  <ul>
+    <li>A fully qualified domain name (FQDN) you control, e.g. <code>mail.yourdomain.com</code></li>
+    <li>Port 25 <strong>must be open outbound</strong>. Most VPS providers block port 25 by default. You must open a support ticket and wait — and some providers (notably AWS EC2, Google Cloud, and Oracle Cloud) restrict port 25 permanently on certain plans regardless of what you ask.</li>
+    <li>Ports 80 and 443 open inbound for Let's Encrypt and the admin UI.</li>
+    <li>Ports 993 (IMAPS), 465 (SMTPS), 587 (Submission) open inbound for mail clients.</li>
+  </ul>
+
+  <h3>Software prerequisites</h3>
+  <ul>
+    <li>Docker Engine 24+ — <strong>not</strong> the <code>docker.io</code> apt package; install from Docker's official repo</li>
+    <li>Docker Compose v2 (the <code>docker compose</code> plugin, not the standalone <code>docker-compose</code> v1)</li>
+    <li>Git</li>
+    <li>curl, openssl, python3</li>
+  </ul>
+
+  <!-- SECTION 3 -->
+  <h2 id="dns">3. DNS Configuration</h2>
+
+  <p>DNS is the most consequential part of email setup. Misconfigured DNS causes mail to be rejected or silently dropped — often without any bounce or error message to the sender. Configure all of the following records <em>before</em> you install Mailcow, and allow up to 24–48 hours for full propagation.</p>
+
+  <h3>A and AAAA records</h3>
+  <p>Point your mail hostname to the server's IP:</p>
+  <table>
+    <tr><th>Name</th><th>Type</th><th>Value</th></tr>
+    <tr><td><code>mail.yourdomain.com</code></td><td>A</td><td>your.server.ip.address</td></tr>
+    <tr><td><code>mail.yourdomain.com</code></td><td>AAAA</td><td>your::ipv6 (if available)</td></tr>
+  </table>
+
+  <h3>MX record</h3>
+  <p>The MX record tells other mail servers where to deliver mail for your domain:</p>
+  <table>
+    <tr><th>Name</th><th>Type</th><th>Priority</th><th>Value</th></tr>
+    <tr><td><code>yourdomain.com</code></td><td>MX</td><td>10</td><td><code>mail.yourdomain.com</code></td></tr>
+  </table>
+
+  <div class="note">
+    MX records must point to a hostname (A/AAAA record), never directly to an IP address. Also ensure TTL is low (300s) while you're setting up so changes propagate quickly.
+  </div>
+
+  <h3>SPF record</h3>
+  <p>SPF authorizes your server to send mail on behalf of your domain. Add a TXT record on the root of your domain:</p>
+  <table>
+    <tr><th>Name</th><th>Type</th><th>Value</th></tr>
+    <tr><td><code>yourdomain.com</code></td><td>TXT</td><td><code>v=spf1 mx ~all</code></td></tr>
+  </table>
+  <p>The <code>mx</code> mechanism automatically includes whatever is in your MX record. <code>~all</code> is a soft fail (recommended while testing); change to <code>-all</code> (hard fail) once everything is working.</p>
+
+  <h3>DMARC record</h3>
+  <p>DMARC tells receivers what to do with mail that fails SPF/DKIM. Start in monitor mode:</p>
+  <table>
+    <tr><th>Name</th><th>Type</th><th>Value</th></tr>
+    <tr><td><code>_dmarc.yourdomain.com</code></td><td>TXT</td><td><code>v=DMARC1; p=none; rua=mailto:dmarc@yourdomain.com</code></td></tr>
+  </table>
+  <p>After a few weeks of reviewing aggregate reports, tighten to <code>p=quarantine</code> then <code>p=reject</code>.</p>
+
+  <h3>Autoconfig / Autodiscover (optional but recommended)</h3>
+  <p>These records let mail clients (Outlook, Thunderbird) configure themselves automatically:</p>
+  <table>
+    <tr><th>Name</th><th>Type</th><th>Value</th></tr>
+    <tr><td><code>autoconfig.yourdomain.com</code></td><td>CNAME</td><td><code>mail.yourdomain.com</code></td></tr>
+    <tr><td><code>autodiscover.yourdomain.com</code></td><td>CNAME</td><td><code>mail.yourdomain.com</code></td></tr>
+  </table>
+
+  <p>Verify all records propagate before proceeding:</p>
+  <pre><code>dig MX yourdomain.com
+dig A mail.yourdomain.com
+dig TXT yourdomain.com</code></pre>
+
+  <!-- SECTION 4 -->
+  <h2 id="server-prep">4. Server Preparation</h2>
+
+  <h3>4.1 System update</h3>
+  <pre><code>apt update && apt upgrade -y
+apt install -y curl git openssl python3</code></pre>
+
+  <h3>4.2 Set the hostname</h3>
+  <p>The server's hostname must match your mail FQDN. This is critical — Postfix uses it in HELO/EHLO handshakes:</p>
+  <pre><code>hostnamectl set-hostname mail.yourdomain.com</code></pre>
+
+  <p>Edit <code>/etc/hosts</code> and ensure the line reads:</p>
+  <pre><code>127.0.1.1   mail.yourdomain.com mail</code></pre>
+
+  <p>Verify:</p>
+  <pre><code>hostname -f
+# should output: mail.yourdomain.com</code></pre>
+
+  <h3>4.3 Install Docker Engine</h3>
+  <p>Do not use the distro-packaged <code>docker.io</code>. Install from Docker's official repository:</p>
+  <pre><code>install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
+  | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+chmod a+r /etc/apt/keyrings/docker.gpg
+
+echo "deb [arch=$(dpkg --print-architecture) \
+  signed-by=/etc/apt/keyrings/docker.gpg] \
+  https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" \
+  | tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+apt update
+apt install -y docker-ce docker-ce-cli containerd.io \
+  docker-buildx-plugin docker-compose-plugin</code></pre>
+
+  <p>Verify:</p>
+  <pre><code>docker --version
+docker compose version</code></pre>
+
+  <h3>4.4 Disable local MTA if present</h3>
+  <p>Ubuntu ships with <code>postfix</code> or <code>exim4</code> sometimes pre-installed. They will conflict with Mailcow's containerized Postfix on port 25:</p>
+  <pre><code>systemctl stop postfix exim4 2>/dev/null
+systemctl disable postfix exim4 2>/dev/null</code></pre>
+
+  <h3>4.5 Check for port conflicts</h3>
+  <pre><code>ss -tlnp | grep -E ':25|:80|:443|:465|:587|:993|:995'</code></pre>
+  <p>Nothing should be listening on those ports before you install Mailcow. If something is, identify and stop it.</p>
+
+  <h3>4.6 Swap (if you have only 4 GB RAM)</h3>
+  <p>ClamAV alone can use over 1 GB of RAM. Adding swap prevents OOM kills:</p>
+  <pre><code>fallocate -l 2G /swapfile
+chmod 600 /swapfile
+mkswap /swapfile
+swapon /swapfile
+echo '/swapfile none swap sw 0 0' >> /etc/fstab</code></pre>
+
+  <!-- SECTION 5 -->
+  <h2 id="install">5. Installing Mailcow</h2>
+
+  <h3>5.1 Clone the repository</h3>
+  <pre><code>cd /opt
+git clone https://github.com/mailcow/mailcow-dockerized
+cd mailcow-dockerized</code></pre>
+
+  <h3>5.2 Generate the configuration</h3>
+  <pre><code>./generate_config.sh</code></pre>
+
+  <p>The script will ask for your mail hostname (e.g. <code>mail.yourdomain.com</code>). It creates <code>mailcow.conf</code> with randomized passwords and a unique installation ID.</p>
+
+  <h3>5.3 Review <code>mailcow.conf</code></h3>
+  <pre><code>nano mailcow.conf</code></pre>
+
+  <p>Key settings to review:</p>
+  <ul>
+    <li><code>MAILCOW_HOSTNAME</code> — must match your FQDN exactly</li>
+    <li><code>HTTP_PORT</code> / <code>HTTPS_PORT</code> — default 80/443; change only if you have a reverse proxy</li>
+    <li><code>SKIP_LETS_ENCRYPT</code> — leave as <code>n</code> for automatic TLS</li>
+    <li><code>SKIP_CLAMD</code> — set to <code>y</code> if you have less than 3 GB RAM to disable ClamAV</li>
+    <li><code>TZ</code> — set your timezone, e.g. <code>America/New_York</code></li>
+  </ul>
+
+  <h3>5.4 Pull images and start</h3>
+  <pre><code>docker compose pull
+docker compose up -d</code></pre>
+
+  <p>First startup takes several minutes as images download and containers initialize. ClamAV in particular takes 2–5 minutes to load its virus database before it is ready.</p>
+
+  <p>Watch progress:</p>
+  <pre><code>docker compose logs -f</code></pre>
+
+  <p>Press <code>Ctrl+C</code> once things settle. Check all containers are running:</p>
+  <pre><code>docker compose ps</code></pre>
+
+  <p>All containers should show <code>Up</code> or <code>healthy</code>. If any are in <code>Restarting</code>, check their logs:</p>
+  <pre><code>docker compose logs &lt;container-name&gt;</code></pre>
+
+  <!-- SECTION 6 -->
+  <h2 id="ssl">6. TLS / SSL Certificates</h2>
+
+  <p>Mailcow uses acme.sh to automatically obtain Let's Encrypt certificates. It does this via HTTP-01 challenge on port 80. For this to work:</p>
+  <ul>
+    <li>Port 80 must be reachable from the internet on your server IP</li>
+    <li>Your DNS A record for <code>mail.yourdomain.com</code> must already point to this server</li>
+    <li>No other service can be using port 80</li>
+  </ul>
+
+  <p>Check the acme container logs to confirm certificate issuance:</p>
+  <pre><code>docker compose logs acme-mailcow</code></pre>
+
+  <p>You should see a line like:</p>
+  <pre><code>[...] Certificate issued successfully for mail.yourdomain.com</code></pre>
+
+  <p>If it fails (e.g. rate-limited or DNS not yet propagated), the container will retry every hour. You can force a retry:</p>
+  <pre><code>docker compose restart acme-mailcow</code></pre>
+
+  <div class="note">
+    Let's Encrypt rate-limits failed attempts. If you trigger too many failures (e.g. by restarting acme repeatedly before DNS has propagated), you may be blocked for up to an hour. Be patient.
+  </div>
+
+  <p>Certificates are stored at <code>data/assets/ssl/</code>. Dovecot and Postfix reload them automatically via a watcher container.</p>
+
+  <!-- SECTION 7 -->
+  <h2 id="firewall">7. Firewall Rules</h2>
+
+  <p>Use <code>ufw</code> to open only what is needed:</p>
+  <pre><code>ufw allow 22/tcp       # SSH — do this first or you'll lock yourself out
+ufw allow 25/tcp       # SMTP (inbound from other mail servers)
+ufw allow 80/tcp       # HTTP (Let's Encrypt + redirect)
+ufw allow 443/tcp      # HTTPS (admin UI + autodiscover)
+ufw allow 465/tcp      # SMTPS (mail client submission, legacy)
+ufw allow 587/tcp      # Submission (mail client submission, modern)
+ufw allow 993/tcp      # IMAPS
+ufw allow 995/tcp      # POP3S (optional)
+ufw enable</code></pre>
+
+  <div class="warn">
+    <strong>Always allow port 22 before enabling ufw.</strong> If you enable ufw without allowing SSH, you will lose access to your server immediately.
+  </div>
+
+  <p>Verify:</p>
+  <pre><code>ufw status verbose</code></pre>
+
+  <!-- SECTION 8 -->
+  <h2 id="first-login">8. First Login and Setup</h2>
+
+  <h3>8.1 Admin UI</h3>
+  <p>Navigate to <code>https://mail.yourdomain.com</code>. The default credentials are:</p>
+  <ul>
+    <li>Username: <code>admin</code></li>
+    <li>Password: <code>moohoo</code></li>
+  </ul>
+
+  <div class="warn">
+    Change the admin password immediately. Go to <strong>Access &rarr; Edit administrator</strong>.
+  </div>
+
+  <h3>8.2 Add your domain</h3>
+  <ol>
+    <li>Go to <strong>Configuration &rarr; Mail Setup &rarr; Domains</strong></li>
+    <li>Click <strong>Add domain</strong></li>
+    <li>Enter <code>yourdomain.com</code></li>
+    <li>Set quotas as appropriate</li>
+    <li>Click <strong>Add domain and restart SOGo</strong></li>
+  </ol>
+
+  <h3>8.3 Add mailboxes</h3>
+  <ol>
+    <li>Go to <strong>Configuration &rarr; Mail Setup &rarr; Mailboxes</strong></li>
+    <li>Click <strong>Add mailbox</strong></li>
+    <li>Fill in the local part (e.g. <code>alice</code>) and set a password</li>
+    <li>Click <strong>Add</strong></li>
+  </ol>
+
+  <p>The full email address will be <code>alice@yourdomain.com</code>.</p>
+
+  <h3>8.4 Mail client settings</h3>
+  <table>
+    <tr><th>Protocol</th><th>Server</th><th>Port</th><th>Security</th></tr>
+    <tr><td>IMAP</td><td>mail.yourdomain.com</td><td>993</td><td>SSL/TLS</td></tr>
+    <tr><td>SMTP</td><td>mail.yourdomain.com</td><td>587</td><td>STARTTLS</td></tr>
+    <tr><td>SMTP (alt)</td><td>mail.yourdomain.com</td><td>465</td><td>SSL/TLS</td></tr>
+  </table>
+  <p>Username is the full email address (<code>alice@yourdomain.com</code>).</p>
+
+  <!-- SECTION 9 -->
+  <h2 id="dkim-dmarc-spf">9. SPF, DKIM, and DMARC</h2>
+
+  <p>You set up SPF and DMARC in the DNS section. DKIM is generated by Mailcow and must be added to DNS manually.</p>
+
+  <h3>9.1 Get your DKIM key</h3>
+  <ol>
+    <li>Go to <strong>Configuration &rarr; Configuration &rarr; ARC/DKIM Keys</strong></li>
+    <li>Your domain should already have a key. If not, click <strong>Add key</strong></li>
+    <li>Copy the DKIM TXT record value shown</li>
+  </ol>
+
+  <h3>9.2 Add DKIM to DNS</h3>
+  <p>The key is typically named <code>dkim._domainkey.yourdomain.com</code> (the selector prefix may vary):</p>
+  <table>
+    <tr><th>Name</th><th>Type</th><th>Value</th></tr>
+    <tr><td><code>dkim._domainkey.yourdomain.com</code></td><td>TXT</td><td>(paste the full value from the admin UI)</td></tr>
+  </table>
+
+  <p>DKIM public keys routinely exceed 255 characters — the maximum length for a single DNS TXT string. Most DNS providers silently truncate or reject oversized values without any error. The fix is to split the key into multiple quoted strings within the same TXT record, but the exact syntax varies by provider. In BIND zone file format it looks like <code>"part1" "part2"</code>; in web UIs you may need to paste each chunk on its own line. Always verify with <code>dig TXT dkim._domainkey.yourdomain.com</code> and confirm the full key is returned before assuming it worked.</p>
+
+  <h3>9.3 Verify everything</h3>
+  <p>Send a test email to <a href="https://www.mail-tester.com">mail-tester.com</a>. A score of 10/10 means SPF, DKIM, and DMARC are all passing. Aim for at least 9/10 before going live.</p>
+
+  <p>You can also verify individual records:</p>
+  <pre><code># SPF
+dig TXT yourdomain.com | grep spf
+
+# DKIM
+dig TXT dkim._domainkey.yourdomain.com
+
+# DMARC
+dig TXT _dmarc.yourdomain.com</code></pre>
+
+  <!-- SECTION 10 -->
+  <h2 id="reverse-dns">10. Reverse DNS (PTR Record)</h2>
+
+  <p>A PTR record maps your IP address back to your hostname. Many receiving mail servers — including Gmail and Outlook — reject or silently discard mail from IPs without a matching PTR record.</p>
+
+  <p>PTR records are controlled by whoever <em>owns the IP address</em> — your VPS provider, not your DNS registrar. Log into your VPS provider's control panel, find the networking or IP settings for the server, and look for "Reverse DNS" or "PTR record". Set it to <code>mail.yourdomain.com</code>. Every major provider supports this, but the UI location varies — search your provider's documentation if you can't find it.</p>
+
+  <ul>
+    <li>Log in to your VPS provider's control panel</li>
+    <li>Find the networking or IP settings for your server</li>
+    <li>Set the reverse DNS / PTR record to <code>mail.yourdomain.com</code></li>
+  </ul>
+
+  <p>Verify (after propagation):</p>
+  <pre><code>dig -x your.server.ip.address
+# should return: mail.yourdomain.com</code></pre>
+
+  <div class="note">
+    The PTR record must resolve back to your mail hostname, and your hostname's A record must resolve back to the IP. This bidirectional match (forward-confirmed rDNS / FCrDNS) is what receiving servers check.
+  </div>
+
+  <!-- SECTION 11 -->
+  <h2 id="spam">11. Spam Filtering</h2>
+
+  <p>Mailcow uses Rspamd for spam filtering. It works well out of the box, but understanding the basics helps you tune it.</p>
+
+  <h3>Rspamd UI</h3>
+  <p>Access the Rspamd web UI at <code>https://mail.yourdomain.com/rspamd</code>. The password is in <code>mailcow.conf</code> under <code>RSPAMD_PASSWORD</code>.</p>
+
+  <h3>Training with ham and spam</h3>
+  <p>Rspamd improves with training. Move messages to/from your Junk folder to train the Bayesian filter — Mailcow automatically feeds these moves to Rspamd via the Dovecot sieve script.</p>
+
+  <h3>Greylisting</h3>
+  <p>Rspamd includes greylisting: it temporarily rejects mail from unknown senders, forcing a retry. Legitimate mail servers always retry; spam bots usually do not. This is enabled by default and significantly reduces spam volume.</p>
+
+  <h3>Checking scores</h3>
+  <p>Every delivered message has an <code>X-Spamd-Result</code> header showing its Rspamd score and which checks fired. Inspect these headers in your mail client to understand why a message was marked as spam or passed through.</p>
+
+  <!-- SECTION 12 -->
+  <h2 id="backups">12. Backups</h2>
+
+  <p>Self-hosting means <strong>you</strong> are responsible for your backups. Mailcow has no built-in automated backup system. If your disk fails, if you accidentally run <code>docker compose down -v</code>, or if your VPS provider loses your data, recovery depends entirely on what you've backed up and how recently. Build your backup process before you start using the server for real mail.</p>
+
+  <h3>What to back up</h3>
+  <ul>
+    <li><code>/opt/mailcow-dockerized/mailcow.conf</code> — contains all secrets and configuration</li>
+    <li><code>/opt/mailcow-dockerized/data/assets/ssl/</code> — TLS certificates</li>
+    <li>Docker volumes: <code>mailcowdockerized_vmail-vol-1</code> (mailboxes), <code>mailcowdockerized_mysql-vol-1</code> (database)</li>
+  </ul>
+
+  <h3>Backing up volumes</h3>
+  <pre><code># Stop containers first for a consistent backup
+docker compose down
+
+# Back up the mail volume
+docker run --rm \
+  -v mailcowdockerized_vmail-vol-1:/data \
+  -v /backup:/backup \
+  alpine tar czf /backup/vmail-$(date +%F).tar.gz /data
+
+# Back up the MySQL database
+docker compose up -d mysql-mailcow
+docker compose exec mysql-mailcow mysqldump \
+  --all-databases \
+  -u root \
+  -p"$(grep DBROOT mailcow.conf | cut -d= -f2)" \
+  > /backup/mysql-$(date +%F).sql
+
+docker compose up -d</code></pre>
+
+  <h3>Offsite backup</h3>
+  <p>Storing backups on the same server is not a backup — it protects only against accidental deletion, not hardware failure or provider outage. Use <code>rclone</code> to sync backups to an S3-compatible object store, Backblaze B2, or another remote location:</p>
+  <pre><code>rclone copy /backup remote:mailcow-backups --progress</code></pre>
+
+  <!-- SECTION 13 -->
+  <h2 id="monitoring">13. Monitoring and Maintenance</h2>
+
+  <h3>Checking mail queues</h3>
+  <pre><code># View Postfix queue
+docker compose exec postfix-mailcow mailq
+
+# Flush queue (retry all deferred messages)
+docker compose exec postfix-mailcow postqueue -f</code></pre>
+
+  <h3>Log access</h3>
+  <pre><code># All container logs
+docker compose logs -f --tail=100
+
+# Postfix SMTP logs only
+docker compose logs postfix-mailcow -f
+
+# Dovecot IMAP logs
+docker compose logs dovecot-mailcow -f</code></pre>
+
+  <h3>Updating Mailcow</h3>
+  <p>Run the built-in update script. Read the release notes on GitHub first — occasionally there are breaking changes:</p>
+  <pre><code>cd /opt/mailcow-dockerized
+./update.sh</code></pre>
+
+  <p>The script pulls new images, recreates containers, and applies any necessary database migrations. It takes a few minutes and causes brief downtime.</p>
+
+  <h3>Checking your IP reputation</h3>
+  <p>Getting blacklisted after a clean start is more common than it sounds — a forwarded spam message, a compromised account, or simply sharing a subnet with a bad actor can land your IP on a list. Each blocklist has its own delisting process, some automated, some manual with no guaranteed turnaround. Run this check monthly:</p>
+  <ul>
+    <li><a href="https://mxtoolbox.com/blacklists.aspx">MXToolbox Blacklist Check</a></li>
+    <li><a href="https://check.spamhaus.org/">Spamhaus Lookup</a></li>
+    <li><a href="https://www.barracudacentral.org/lookups">Barracuda Reputation Lookup</a></li>
+  </ul>
+
+  <h3>Disk usage</h3>
+  <p>Mail accumulates. Check disk usage regularly:</p>
+  <pre><code>df -h /
+docker system df</code></pre>
+
+  <!-- SECTION 14 -->
+  <h2 id="troubleshooting">14. Troubleshooting</h2>
+
+  <h3>Mail not being delivered to external addresses</h3>
+  <ol>
+    <li>Check port 25 is open outbound: <code>telnet smtp.gmail.com 25</code> — if it hangs, your provider is blocking it</li>
+    <li>Check the Postfix queue: <code>docker compose exec postfix-mailcow mailq</code></li>
+    <li>Look at Postfix logs for bounce/deferral reasons</li>
+    <li>Verify your PTR record is set and matches your hostname</li>
+    <li>Check your IP at MXToolbox for blacklistings</li>
+  </ol>
+
+  <h3>External mail not arriving</h3>
+  <ol>
+    <li>Verify MX record: <code>dig MX yourdomain.com</code></li>
+    <li>Check that port 25 is open inbound (firewall)</li>
+    <li>Check Postfix and Rspamd logs for rejections</li>
+    <li>Verify the domain is added in the Mailcow admin UI</li>
+  </ol>
+
+  <h3>TLS certificate not issuing</h3>
+  <ol>
+    <li>Confirm port 80 is open inbound</li>
+    <li>Confirm DNS A record for your hostname resolves to this server's IP</li>
+    <li>Check logs: <code>docker compose logs acme-mailcow</code></li>
+    <li>Wait for DNS propagation before retrying</li>
+  </ol>
+
+  <h3>Container keeps restarting</h3>
+  <pre><code>docker compose ps                          # identify the container
+docker compose logs &lt;container&gt; --tail=50  # read the error</code></pre>
+
+  <p>Common causes: port conflict with a host service, insufficient RAM (especially ClamAV), misconfigured <code>mailcow.conf</code>.</p>
+
+  <h3>Locked out of admin UI</h3>
+  <pre><code># Reset admin password from the host
+docker compose exec mysql-mailcow mysql -u root \
+  -p"$(grep DBROOT mailcow.conf | cut -d= -f2)" mailcow \
+  -e "UPDATE administrator SET password = '{SSHA256}$(echo -n 'newpassword' | openssl dgst -sha256 -binary | base64)' WHERE username = 'admin';"</code></pre>
+
+  <!-- SECTION 15 -->
+  <h2 id="multiple-domains">15. Multiple Domains and Aliases</h2>
+
+  <h3>Adding additional domains</h3>
+  <p>Mailcow supports hosting mail for as many domains as you like. Each domain needs its own MX, SPF, DKIM, and DMARC records — repeat the DNS setup from section 3 for each one. In the admin UI, go to <strong>Configuration &rarr; Mail Setup &rarr; Domains</strong> and add each domain. After adding a new domain, generate a DKIM key for it under <strong>Configuration &rarr; ARC/DKIM Keys</strong> — keys are per-domain, not shared.</p>
+
+  <h3>Domain aliases</h3>
+  <p>A domain alias makes every mailbox on one domain receive mail sent to the same local part on another domain. For example, if you alias <code>oldcompany.com</code> to <code>newcompany.com</code>, mail to <code>alice@oldcompany.com</code> is automatically delivered to <code>alice@newcompany.com</code>. Add domain aliases under <strong>Configuration &rarr; Mail Setup &rarr; Domain aliases</strong>. You still need correct DNS (MX record) for the aliased domain.</p>
+
+  <h3>Mailbox aliases</h3>
+  <p>Individual address aliases redirect one address to another. Go to <strong>Configuration &rarr; Mail Setup &rarr; Aliases</strong>. Common uses: <code>info@</code>, <code>support@</code>, <code>noreply@</code> all routed to a real mailbox. You can also set a catch-all by using <code>@yourdomain.com</code> as the alias address — any address at that domain not matching a real mailbox will land in the catch-all destination. Be cautious with catch-alls; they attract significant spam.</p>
+
+  <h3>Forwarding</h3>
+  <p>Forwarding copies or redirects incoming mail to an external address. Configure it per-mailbox under <strong>Configuration &rarr; Mail Setup &rarr; Mailboxes &rarr; Edit</strong>. Be aware that forwarding to Gmail or Outlook is a deliverability minefield: if you forward a spam message that passes your server's checks, the receiving server may blacklist your IP for relaying spam. Use Sieve filters (next section) for finer control.</p>
+
+  <!-- SECTION 16 -->
+  <h2 id="sieve">16. Sieve Filters</h2>
+
+  <p>Sieve is a scripting language for mail filtering that runs server-side inside Dovecot, before mail reaches your inbox. It can sort, reject, forward, and auto-reply to messages based on any header or content. Mailcow exposes Sieve through two interfaces: a simple rules UI in the user panel, and a raw script editor for advanced use.</p>
+
+  <h3>Accessing the user panel</h3>
+  <p>Each mailbox has its own login at <code>https://mail.yourdomain.com</code>. Log in with the full email address and mailbox password. Under <strong>Filters</strong>, you can create basic rules without writing Sieve directly.</p>
+
+  <h3>Writing Sieve scripts directly</h3>
+  <p>For anything beyond basic sorting, write the script yourself. In the user panel, go to <strong>Filters &rarr; Sieve script</strong>. Example — move newsletter mail to a folder:</p>
+  <pre><code>require ["fileinto", "imap4flags"];
+
+if header :contains "List-Unsubscribe" "" {
+    fileinto "Newsletters";
+    stop;
+}</code></pre>
+
+  <p>Auto-reply (vacation responder):</p>
+  <pre><code>require ["vacation"];
+
+vacation
+    :days 7
+    :subject "Out of office"
+    :addresses ["alice@yourdomain.com"]
+    "I'm away until 15 March. I'll reply when I'm back.";
+</code></pre>
+
+  <p>Reject mail from a specific address:</p>
+  <pre><code>require ["reject"];
+
+if address :is "from" "spammer@example.com" {
+    reject "Not accepted.";
+    stop;
+}</code></pre>
+
+  <h3>Global Sieve scripts</h3>
+  <p>Admins can apply a Sieve script to all mailboxes on the server. This is useful for global spam handling or compliance archiving. Edit <code>data/conf/dovecot/global_sieve_before</code> (runs before user filters) or <code>data/conf/dovecot/global_sieve_after</code> (runs after). Restart Dovecot after changes:</p>
+  <pre><code>docker compose restart dovecot-mailcow</code></pre>
+
+  <!-- SECTION 17 -->
+  <h2 id="brute-force">17. Brute Force Protection</h2>
+
+  <p>Mailcow ships with Fail2ban pre-configured as a container (<code>netfilter-mailcow</code>). It monitors logs from Postfix, Dovecot, SOGo, and the admin UI, and automatically bans IPs that exceed login failure thresholds using <code>nftables</code> rules on the host.</p>
+
+  <h3>Viewing active bans</h3>
+  <pre><code>docker compose exec netfilter-mailcow fail2ban-client status
+docker compose exec netfilter-mailcow fail2ban-client status postfix-sasl</code></pre>
+
+  <h3>Unbanning an IP</h3>
+  <p>If you lock yourself out:</p>
+  <pre><code>docker compose exec netfilter-mailcow fail2ban-client set postfix-sasl unbanip YOUR.IP.ADDRESS</code></pre>
+
+  <h3>Whitelisting IPs</h3>
+  <p>Add trusted IPs to the whitelist in <code>mailcow.conf</code>:</p>
+  <pre><code>SNAT_TO_SOURCE=
+IPV4_NETWORK=172.22.1
+# Add to SKIP_LETS_ENCRYPT section:
+SPAMHAUS_DQS_KEY=</code></pre>
+  <p>More precisely, edit <code>data/conf/fail2ban/custom.conf</code> and add:</p>
+  <pre><code>[DEFAULT]
+ignoreip = 127.0.0.1/8 ::1 YOUR.TRUSTED.IP.HERE</code></pre>
+  <p>Then restart the netfilter container:</p>
+  <pre><code>docker compose restart netfilter-mailcow</code></pre>
+
+  <h3>Tuning thresholds</h3>
+  <p>Default ban threshold is 10 failures in 10 minutes, ban duration 1 hour. To adjust, create <code>data/conf/fail2ban/custom.conf</code>:</p>
+  <pre><code>[DEFAULT]
+maxretry = 5
+findtime = 600
+bantime = 86400</code></pre>
+
+  <!-- SECTION 18 -->
+  <h2 id="deliverability">18. Deliverability with Gmail and Outlook</h2>
+
+  <p>Passing SPF, DKIM, and DMARC is necessary but not sufficient for reliable delivery to Gmail and Outlook. Both providers maintain their own reputation systems that take weeks or months of consistent sending to warm up. Setting up their postmaster tools gives you visibility into how they see your server.</p>
+
+  <h3>Google Postmaster Tools</h3>
+  <ol>
+    <li>Go to <a href="https://postmaster.google.com">postmaster.google.com</a></li>
+    <li>Add your domain and verify ownership via a DNS TXT record</li>
+    <li>After a week of sending mail that recipients interact positively with (open, reply, not mark as spam), your domain reputation dashboard will populate</li>
+  </ol>
+  <p>The dashboard shows your domain reputation (Bad / Low / Medium / High), IP reputation, spam rate, delivery errors, and DKIM/DMARC compliance. A "Low" or "Bad" reputation means Gmail is silently sending your mail to spam or rejecting it. There is no quick fix — only sustained good sending behaviour over time improves it.</p>
+
+  <h3>Microsoft SNDS and JMRP</h3>
+  <p>For deliverability to Outlook, Hotmail, and Live accounts:</p>
+  <ul>
+    <li><strong>Smart Network Data Services (SNDS)</strong> — <a href="https://sendersupport.olc.protection.outlook.com/snds/">Microsoft SNDS</a> shows your IP's complaint rate and trap hit rate as seen by Microsoft. Register your IP to monitor it.</li>
+    <li><strong>Junk Mail Reporting Program (JMRP)</strong> — Sends you a copy of every complaint when a recipient marks your mail as junk. Register at the same portal. Use this data to identify and remove unengaged recipients from any mailing lists.</li>
+  </ul>
+  <p>If your IP is already blocked by Microsoft (you'll see <code>550 5.7.606</code> or <code>SC-001</code> in bounce messages), submit a delisting request at <a href="https://sender.office.com">sender.office.com</a>.</p>
+
+  <h3>Warming up a new IP</h3>
+  <p>Large providers are suspicious of IPs that appear from nowhere and immediately send high volumes. If you're sending bulk mail or newsletters, start with small daily volumes and ramp up gradually over several weeks. For transactional mail (receipts, notifications), the volume is typically low enough that warm-up isn't an issue, but reputation still builds slowly.</p>
+
+  <!-- SECTION 19 -->
+  <h2 id="mta-sts">19. MTA-STS and DANE</h2>
+
+  <h3>MTA-STS</h3>
+  <p>MTA-STS (Mail Transfer Agent Strict Transport Security) is a standard that lets you publish a policy telling other mail servers that they must use TLS when delivering to you, and that they should validate your certificate. Without it, a man-in-the-middle can downgrade an inbound connection to plaintext. With a modern TLS certificate (which Mailcow provides via Let's Encrypt), enabling MTA-STS is straightforward.</p>
+
+  <p>You need to serve a policy file over HTTPS at exactly <code>https://mta-sts.yourdomain.com/.well-known/mta-sts.txt</code>, and add a DNS TXT record to activate it.</p>
+
+  <p>The policy file content:</p>
+  <pre><code>version: STSv1
+mode: enforce
+mx: mail.yourdomain.com
+max_age: 604800</code></pre>
+
+  <p>Host this file on any web server (a Cloudflare Worker, a GitHub Pages site, or a separate nginx on your mail server all work). Then add two DNS records:</p>
+  <table>
+    <tr><th>Name</th><th>Type</th><th>Value</th></tr>
+    <tr><td><code>mta-sts.yourdomain.com</code></td><td>CNAME or A</td><td>(wherever you're hosting the policy file)</td></tr>
+    <tr><td><code>_mta-sts.yourdomain.com</code></td><td>TXT</td><td><code>v=STSv1; id=20240101000000</code></td></tr>
+  </table>
+  <p>The <code>id</code> value is a change indicator — update it (any string works, a timestamp is conventional) whenever you modify the policy file so sending servers know to re-fetch it.</p>
+
+  <p>Also add a TLS Reporting record so you receive reports when other servers fail to establish TLS with you:</p>
+  <table>
+    <tr><th>Name</th><th>Type</th><th>Value</th></tr>
+    <tr><td><code>_smtp._tls.yourdomain.com</code></td><td>TXT</td><td><code>v=TLSRPTv1; rua=mailto:tlsrpt@yourdomain.com</code></td></tr>
+  </table>
+
+  <h3>DANE / TLSA</h3>
+  <p>DANE (DNS-based Authentication of Named Entities) publishes your TLS certificate fingerprint in DNS as a TLSA record, secured by DNSSEC. This lets sending servers verify your certificate without relying on the certificate authority system. It requires DNSSEC to be enabled on your domain — without DNSSEC, DANE records are not trustworthy and will be ignored. If your domain registrar supports DNSSEC, generate the TLSA record from your certificate:</p>
+  <pre><code># Get the fingerprint from your current certificate
+openssl x509 -in /opt/mailcow-dockerized/data/assets/ssl/cert.pem \
+  -pubkey -noout \
+  | openssl pkey -pubin -outform DER \
+  | openssl dgst -sha256 -binary \
+  | xxd -p -c 256</code></pre>
+  <p>The resulting hash is the value for a TLSA record at <code>_25._tcp.mail.yourdomain.com</code> with parameters <code>3 1 1</code>. DANE adoption among sending servers is limited but growing — worth setting up if you already have DNSSEC.</p>
+
+  <!-- SECTION 20 -->
+  <h2 id="fts">20. Full-Text Search</h2>
+
+  <p>By default, IMAP search in Dovecot can only search message headers and metadata. Searching the body of messages (as mail clients do when you use their search box) requires Dovecot to open and scan every message individually — which is slow on large mailboxes.</p>
+
+  <p>Mailcow includes an optional Solr container for full-text indexing. It is disabled by default because it consumes significant RAM (512 MB minimum, more with large mailboxes).</p>
+
+  <h3>Enabling Solr</h3>
+  <p>In <code>mailcow.conf</code>, set:</p>
+  <pre><code>SKIP_SOLR=n</code></pre>
+
+  <p>Then recreate the affected containers:</p>
+  <pre><code>docker compose up -d</code></pre>
+
+  <p>Solr starts indexing existing mail in the background. Depending on mailbox size, initial indexing can take hours. Monitor progress:</p>
+  <pre><code>docker compose logs solr-mailcow -f</code></pre>
+
+  <h3>Reindexing a mailbox</h3>
+  <p>If a mailbox becomes out of sync:</p>
+  <pre><code>docker compose exec dovecot-mailcow doveadm fts rescan -u alice@yourdomain.com
+docker compose exec dovecot-mailcow doveadm index -u alice@yourdomain.com -q INBOX</code></pre>
+
+  <!-- SECTION 21 -->
+  <h2 id="migration">21. Migrating Existing Mail</h2>
+
+  <p>If you're moving from another mail provider, <code>imapsync</code> is the standard tool for copying mail between IMAP servers. It preserves folder structure, flags (read/unread, starred), and message dates.</p>
+
+  <h3>Installing imapsync</h3>
+  <pre><code>apt install -y imapsync</code></pre>
+
+  <h3>Running a migration</h3>
+  <pre><code>imapsync \
+  --host1 imap.oldprovider.com --ssl1 \
+  --user1 alice@olddomain.com --password1 'oldpassword' \
+  --host2 mail.yourdomain.com --ssl2 \
+  --user2 alice@yourdomain.com --password2 'newpassword' \
+  --automap \
+  --skipcrossduplicates \
+  --useuid</code></pre>
+
+  <p><code>--automap</code> handles common folder name differences (e.g. "Sent Items" vs "Sent"). <code>--skipcrossduplicates</code> avoids copying messages that already exist in the destination. <code>--useuid</code> uses IMAP UIDs for deduplication, which is more reliable than message-ID matching.</p>
+
+  <p>For large mailboxes, run imapsync in a <code>screen</code> or <code>tmux</code> session so a disconnected SSH session doesn't interrupt it:</p>
+  <pre><code>screen -S migration
+imapsync [options]
+# Ctrl+A then D to detach; screen -r migration to reattach</code></pre>
+
+  <h3>Syncing incrementally</h3>
+  <p>Run imapsync multiple times before your DNS cutover. The first run copies everything (slow). Subsequent runs only sync new and changed messages (fast). On cutover day: update your MX record, wait for propagation, then do one final sync to catch mail that arrived at the old server during the transition.</p>
+
+  <h3>Migrating contacts and calendar</h3>
+  <p>Mail is only part of it. If your old provider supports CardDAV/CalDAV export, export your contacts as a <code>.vcf</code> file and your calendar as an <code>.ics</code> file, then import them into SOGo via the webmail interface at <code>https://mail.yourdomain.com</code>.</p>
+
+  <!-- SECTION 22 -->
+  <h2 id="restore">22. Restoring from Backup</h2>
+
+  <p>Having backups is only half of it. Know your restore procedure before you need it.</p>
+
+  <h3>Restoring the mail volume</h3>
+  <pre><code># Stop Mailcow
+cd /opt/mailcow-dockerized
+docker compose down
+
+# Remove the existing volume (destructive — only do this if restoring fully)
+docker volume rm mailcowdockerized_vmail-vol-1
+
+# Recreate the volume and restore
+docker volume create mailcowdockerized_vmail-vol-1
+docker run --rm \
+  -v mailcowdockerized_vmail-vol-1:/data \
+  -v /backup:/backup \
+  alpine tar xzf /backup/vmail-2024-01-01.tar.gz -C /</code></pre>
+
+  <h3>Restoring the database</h3>
+  <pre><code># Start only MySQL
+docker compose up -d mysql-mailcow
+
+# Restore the dump
+docker compose exec -T mysql-mailcow mysql \
+  -u root \
+  -p"$(grep DBROOT mailcow.conf | cut -d= -f2)" \
+  < /backup/mysql-2024-01-01.sql
+
+# Start the rest
+docker compose up -d</code></pre>
+
+  <h3>Restoring to a new server</h3>
+  <p>If the original server is gone:</p>
+  <ol>
+    <li>Provision a new server and install Docker (section 4)</li>
+    <li>Clone the Mailcow repository: <code>git clone https://github.com/mailcow/mailcow-dockerized /opt/mailcow-dockerized</code></li>
+    <li>Copy <code>mailcow.conf</code> from your backup to <code>/opt/mailcow-dockerized/mailcow.conf</code></li>
+    <li>Restore the mail volume and database as above</li>
+    <li>Update DNS to point to the new server's IP</li>
+    <li>Set the PTR record on the new server's IP at your new VPS provider</li>
+    <li>Start Mailcow: <code>docker compose up -d</code></li>
+  </ol>
+  <p>The Let's Encrypt certificate will be re-issued automatically once DNS propagates. Expect 15–60 minutes before HTTPS is fully working on the new server.</p>
+
+  <!-- SECTION 23 -->
+  <h2 id="performance">23. Performance Tuning</h2>
+
+  <h3>ClamAV memory usage</h3>
+  <p>ClamAV is the largest consumer of RAM in a default Mailcow installation. Its virus database loads entirely into memory and occupies roughly 700 MB–1 GB. If you're running on a server with less than 6 GB RAM and don't need virus scanning (e.g. the server is for personal use and you trust your senders), disable it in <code>mailcow.conf</code>:</p>
+  <pre><code>SKIP_CLAMD=y</code></pre>
+  <p>Then recreate the containers: <code>docker compose up -d</code>. Rspamd will still filter spam; you simply lose the virus scanning layer.</p>
+
+  <h3>MySQL / MariaDB tuning</h3>
+  <p>For servers with more RAM, increase the InnoDB buffer pool to allow more of the database to be cached in memory. Create <code>data/conf/mysql/custom.cnf</code>:</p>
+  <pre><code>[mysqld]
+innodb_buffer_pool_size = 256M
+innodb_buffer_pool_instances = 1
+innodb_log_file_size = 64M
+max_connections = 50</code></pre>
+  <p>Restart MySQL: <code>docker compose restart mysql-mailcow</code>. For most personal and small-team setups the defaults are fine; this matters at higher mailbox counts.</p>
+
+  <h3>Rspamd worker processes</h3>
+  <p>Rspamd uses a normal worker for scanning and a controller for the web UI. On a high-volume server, you can increase the number of scanner workers. Create <code>data/conf/rspamd/local.d/worker-normal.inc</code>:</p>
+  <pre><code>count = 4;</code></pre>
+  <p>Restart Rspamd: <code>docker compose restart rspamd-mailcow</code>. Each worker uses roughly 100–200 MB RAM.</p>
+
+  <h3>Dovecot connection limits</h3>
+  <p>The default per-IP connection limit in Dovecot is 10. Mail clients that open many IMAP connections (some versions of Outlook, or mobile clients syncing multiple folders simultaneously) can hit this. Raise it in <code>data/conf/dovecot/extra.conf</code>:</p>
+  <pre><code>mail_max_userip_connections = 30</code></pre>
+  <p>Restart Dovecot: <code>docker compose restart dovecot-mailcow</code>.</p>
+
+  <h3>Log rotation</h3>
+  <p>Docker container logs are written to <code>/var/lib/docker/containers/</code> and are not rotated by default. On a busy server they can fill your disk over weeks or months. Configure log rotation in <code>/etc/docker/daemon.json</code>:</p>
+  <pre><code>{
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "50m",
+    "max-file": "5"
+  }
+}</code></pre>
+  <p>Restart Docker: <code>systemctl restart docker</code>. Then restart Mailcow: <code>docker compose up -d</code>. Note that this applies to new containers — existing containers need to be recreated to pick up the new log settings.</p>
 
   <hr>
 
-  <p><small>&copy; 2026 hostyouremail.com</small></p>
+  <div class="footer">
+    <p>Just want email that works? <a href="https://www.cheapestemailhosting.com">cheapestemailhosting.com</a> — fully managed, great deliverability, stupid cheap.</p>
+  </div>
 
-  <script src="/register.js"></script>
+</div>
 </body>
 </html>
